@@ -39,25 +39,30 @@ def init_database():
         port = mysql_config.get("port", 3306)
         db_name = mysql_config.get("database", "rinl_delays")
 
-    # 2. Connect to MySQL server (without database name) to verify database existence
+    # 2. Try to connect directly to the database first
     import urllib.parse
     password_encoded = urllib.parse.quote_plus(password)
-    
-    server_url = f"mysql+pymysql://{user}:{password_encoded}@{host}:{port}/"
-    print(f"Connecting to MySQL server at {host}:{port}...")
-    try:
-        server_engine = create_engine(server_url)
-        with server_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
-            conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {db_name};"))
-            print(f"Database '{db_name}' verified/created.")
-    except Exception as e:
-        print(f"Error connecting to MySQL server: {e}")
-        print("Please ensure your MySQL server is running and credentials in secrets.toml are correct.")
-        return
-
-    # 3. Connect to the specific database
     db_url = f"mysql+pymysql://{user}:{password_encoded}@{host}:{port}/{db_name}"
-    db_engine = create_engine(db_url)
+    
+    print(f"Connecting to database '{db_name}' at {host}:{port}...")
+    try:
+        db_engine = create_engine(db_url)
+        # Test connection
+        with db_engine.connect() as conn:
+            print(f"Successfully connected directly to database '{db_name}'.")
+    except Exception as e:
+        print(f"Could not connect directly to database '{db_name}'. Attempting to verify/create database on server...")
+        server_url = f"mysql+pymysql://{user}:{password_encoded}@{host}:{port}/"
+        try:
+            server_engine = create_engine(server_url)
+            with server_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+                conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {db_name};"))
+                print(f"Database '{db_name}' verified/created.")
+            db_engine = create_engine(db_url)
+        except Exception as server_err:
+            print(f"Error connecting to MySQL server: {server_err}")
+            print("Please ensure your MySQL server is running and credentials in secrets.toml/environment are correct.")
+            return
 
     # 4. Load cleaned CSV data if available
     csv_path = r"c:\Users\Prethikesh\Desktop\RINL\cleaned_delays_data.csv"

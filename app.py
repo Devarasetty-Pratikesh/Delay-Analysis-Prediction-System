@@ -191,8 +191,10 @@ def load_data():
             df['DATE'] = pd.to_datetime(df['DEL_DATE'])
             return df
     except Exception as e:
-        # DB connection failed, fallback to CSV
-        pass
+        # DB connection failed, show error in sidebar for diagnosis and log it
+        st.sidebar.error(f"⚠️ Database Connection/Query Failed: {e}")
+        import logging
+        logging.error(f"Database Connection/Query Failed: {e}")
 
     # Local CSV backup fallback
     clean_csv_path = r"c:\Users\Prethikesh\Desktop\RINL\cleaned_delays_data.csv"
