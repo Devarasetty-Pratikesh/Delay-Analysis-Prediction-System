@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: rinl-mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  web:
+    build: .
+    container_name: rinl-dashboard-app
+    restart: always
+    ports:
+      - "8501:8501"
+    depends_on:
+      - db
+    environment:
+      - STREAMLIT_CONNECTIONS_MYSQL_DIALECT=mysql
+      - STREAMLIT_CONNECTIONS_MYSQL_HOST=db
+      - STREAMLIT_CONNECTIONS_MYSQL_PORT=3306
+      - STREAMLIT_CONNECTIONS_MYSQL_DATABASE=${MYSQL_DATABASE}
+      - STREAMLIT_CONNECTIONS_MYSQL_USERNAME=root
+      - STREAMLIT_CONNECTIONS_MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+volumes:
+  mysql_data:

@@ -1,0 +1,33 @@
+# Database credentials and local configuration secrets
+.streamlit/secrets.toml
+.env
+
+# Large dataset backups / CSV files
+*.csv
+
+# Python cache & compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+.env/
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Temporary / backup files
+~$*
+*.tmp
+*.bak
+*~
+*.doc
+*.docx
+
+# IDE configurations
+.vscode/
+.idea/
