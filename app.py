@@ -1,3 +1,5 @@
+import pymysql
+pymysql.install_as_MySQLdb()
 import streamlit as st
 import pandas as pd
 import numpy as np
